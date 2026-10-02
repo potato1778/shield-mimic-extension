@@ -1,0 +1,38 @@
+$basePath = ''../{^^.name}/{^^.startTime}/''
+
+ea.experiment(
+  runs = (randomGenerator = (seed = [1:1:5]) * [m.defaultRG()]) * [
+    ea.run(
+      solver = ea.s.nsga2(
+        stop = ea.sc.nOfQualityEvaluations(n = 5000);
+        nPop = 100;
+        representation = ea.r.cfgTree(grammar = ea.grammar.fromFile(
+          path = "src/main/resources/grammars/mimic/mimic_generated-grammar-map.bnf"));
+        mapper = anonym.mapper.treeToQueryMapper()
+      );
+      problem = anonym.problem.anonymizationProblem(
+        inputCsvPath = "target/mimic-quality-smoke-sample.csv";
+        grammarPath = "src/main/resources/grammars/mimic/mimic_generated-grammar-map.bnf";
+        privacyMetric = K_ANONYMITY_CARDINALITY_Q99; 
+        keyColumn = ""
+      )
+    )
+  ];
+  listeners = [
+    ea.l.console(eFunctions = [
+      f.mapValue(key = privacy; of = ea.f.quality(of = ea.f.best()); format = "%6.3f");
+      f.mapValue(key = "results-similarity"; of = ea.f.quality(of = ea.f.best()); format = "%6.3f");
+      f.mapValue(key = "performance-similarity"; of = ea.f.quality(of = ea.f.best()); format = "%6.3f");
+      ea.f.solution(of = ea.f.best())
+    ]);
+    ea.l.csv(
+      path = $basePath + "mimic-smoke-best.csv";
+      eFunctions = [
+        f.mapValue(key = privacy; of = ea.f.quality(of = ea.f.best()));
+        f.mapValue(key = "results-similarity"; of = ea.f.quality(of = ea.f.best()));
+        f.mapValue(key = "performance-similarity"; of = ea.f.quality(of = ea.f.best()));
+        ea.f.solution(of = ea.f.best())
+      ]
+    )
+  ]
+)

@@ -1,0 +1,27 @@
+# Build output
+target/
+build/
+*.class
+
+# Experiment output
+outputs/
+
+# Data. MIMIC-IV is credentialed and must never be committed.
+data/
+*.csv
+*.csv.gz
+!src/main/resources/**/*.csv
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+.classpath
+.project
+.settings/
+
+# OS
+.DS_Store
+Thumbs.db
